@@ -84,11 +84,19 @@ def search_open_library(title):
     except Exception:
         return []
 
-def get_ai_summary(book_title, api_key):
-    if not api_key: return "Provide valid access token key credentials."
+def get_ai_summary(book_title, api_key=None):
+    # Automatically pulls the hidden key from Streamlit Secrets if no key is typed
+    if not api_key:
+        try:
+            import streamlit as st
+            api_key = st.secrets["OPENAI_API_KEY"]
+        except Exception:
+            return "Error: Secure API Key token not found in Cloud Secrets Configuration."
+
     try:
         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
         data = {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": f"Provide 1 line summary for: {book_title}"}]}
         return requests.post("https://api.openai.com/v1/chat/completions", json=data, headers=headers, timeout=12).json()['choices'][0]['message']['content'].strip()
     except Exception as e:
         return str(e)
+      
