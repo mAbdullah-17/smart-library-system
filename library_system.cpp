@@ -120,13 +120,21 @@ student_file << student_list[i].id << "\n"
     }
 
     void authenticate_user(string username, string password) {
-        if (username == "Abdullah" && password == "12345678") {
-            cout << "SUCCESS: Authenticated" << endl;
-        } else {
-            cout << "ERROR: Invalid username or password" << endl;
-        }
+    // Trim potential invisible server characters from the web inputs
+    if (!username.empty() && (username[username.length()-1] == '\r' || username[username.length()-1] == '\n')) {
+        username.erase(username.length() - 1);
+    }
+    if (!password.empty() && (password[password.length()-1] == '\r' || password[password.length()-1] == '\n')) {
+        password.erase(password.length() - 1);
     }
 
+    // Evaluate the cleaned strings using your exact custom credentials
+    if (username == "Abdullah" && password == "12345678") {
+        cout << "SUCCESS: Authenticated" << endl;
+    } else {
+        cout << "ERROR: Invalid username or password" << endl;
+    }
+}
     void add_book(string b_id, string b_title, string b_author) {
         if (total_books >= MAX) {
             cout << "ERROR: No space left for books!" << endl;
