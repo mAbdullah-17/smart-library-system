@@ -38,6 +38,10 @@ st.markdown("""
         border-radius: 6px !important;
         border: none !important;
     }
+    /* Text alignment helper */
+    .centered-text {
+        text-align: center !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -47,13 +51,19 @@ if "logged_in" not in st.session_state:
 
 # --- DEPLOYMENT SECURITY ACCESS PORTAL ---
 if not st.session_state.logged_in:
-    st.title("Admin Login Page")
-    st.markdown("### Authentication verified via C++ in Backend.")
+    # 🟢 CENTERED FIX: Creating a 3-column structural layout wrapper grid matrix
+    left_spacer, center_card, right_spacer = st.columns([1, 1.5, 1])
     
-    col_l, col_r = st.columns([1, 1])
-    with col_l:
+    # Push all login input elements strictly inside the center column grid focus area
+    with center_card:
+        st.markdown("<h1 class='centered-text'>🔐 Admin Login Page</h1>", unsafe_allow_html=True)
+        st.markdown("<p class='centered-text'>Authentication verified via C++ in Backend.</p>", unsafe_allow_html=True)
+        st.write("") # Structural padding gap space spacer
+        
+        # Injected interactive login field panels
         user = st.text_input("Admin ID")
         password = st.text_input("Password", type="password")
+        st.write("") # Structural padding gap space spacer
         
         if st.button("Login", use_container_width=True):
             if api.verify_login(user, password):
@@ -61,7 +71,7 @@ if not st.session_state.logged_in:
                 st.success("Welcome Admin!")
                 st.rerun()
             else:
-                st.error("c++ is not working properly")
+                st.error("Access validation handshake failure in C++ execution scope.")
 
 else:
     # --- ENTERPRISE SIDEBAR NAVIGATION DESK ---
@@ -89,7 +99,7 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- ACTION EXECUTIVE LOGIC ROUTERS (🟢 Fixed Indentation Here!) ---
+    # --- ACTION EXECUTIVE LOGIC ROUTERS ---
     
     # PAGE 1: MAIN METRICS DASHBOARD
     if page == "Dashboard":
