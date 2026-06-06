@@ -120,7 +120,7 @@ student_file << student_list[i].id << "\n"
     }
 
     void authenticate_user(string username, string password) {
-        if (username == "admin" && password == "admin123") {
+        if (username == "Abdullah" && password == "12345678") {
             cout << "SUCCESS: Authenticated" << endl;
         } else {
             cout << "ERROR: Invalid username or password" << endl;
