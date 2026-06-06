@@ -108,7 +108,18 @@ else:
                     st.warning("No matching global volume records discovered in this sector.")
 
     elif page == "AI Context Advisory":
-        key = st.text_input("OpenAI Secure Bearer Key Token Input String", type="password")
+        # Only ask for the book title now; the token is entirely invisible to the user
         target_b = st.text_input("Target Analytical Target Volume Name")
+        
         if st.button("Execute Cloud Model Synthesis Pipeline"):
-            st.markdown(api.get_ai_summary(target_b, key))
+            if target_b:
+                with st.spinner("Synthesizing Context via OpenAI Cloud Brain..."):
+                    summary = api.get_ai_summary(target_b)
+                    
+                    if "ERROR" in summary:
+                        st.error(summary)
+                    else:
+                        st.success("Analysis complete! Synthesis matrix payload generated:")
+                        st.info(summary)
+            else:
+                st.warning("Please specify an evaluation volume target first.")
