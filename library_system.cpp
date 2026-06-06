@@ -278,55 +278,42 @@ student_file << student_list[i].id << "\n"
 };
 
 // ==========================================
-// 5. STANDARD TEXTBOOK CONSOLE LOOP
+// 5. STABLE COMMAND-LINE BRIDGE INTERFACE
 // ==========================================
-int main() {
-    LibrarySystem lib;
-    int choice;
-    string arg1, arg2, arg3;
-
-    // A standard input processing switch-case structure
-    while (cin >> choice) {
-        if (choice == 1) { // Auth
-            cin >> arg1 >> arg2;
-            lib.authenticate_user(arg1, arg2);
-        }
-        else if (choice == 2) { // Add Book
-            cin >> arg1;
-            cin.ignore();
-            getline(cin, arg2);
-            getline(cin, arg3);
-            lib.add_book(arg1, arg2, arg3);
-        }
-        else if (choice == 3) { // View Books
-            lib.view_books();
-        }
-        else if (choice == 4) { // Add Student
-            cin >> arg1;
-            cin.ignore();
-            getline(cin, arg2);
-            getline(cin, arg3);
-            lib.add_student(arg1, arg2, arg3);
-        }
-        else if (choice == 5) { // View Students
-            lib.view_students();
-        }
-        else if (choice == 6) { // Issue Book
-            cin >> arg1 >> arg2;
-            lib.issue_book(arg1, arg2);
-        }
-        else if (choice == 7) { // Return Book
-            cin >> arg1;
-            lib.return_book(arg1);
-        }
-        else if (choice == 8) { // Reports
-            lib.show_reports();
-        }
-        else if (choice == 9) { // Exit
-            break;
-        }
-        // Specific marker printed out to signal the Python process pipeline
-        cout << "---END_ACTION---" << endl;
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        cout << "ERROR: No action specified." << endl;
+        return 1;
     }
+
+    LibrarySystem lib;
+    string action = argv[1];
+
+    if (action == "auth" && argc == 4) {
+        lib.authenticate_user(argv[2], argv[3]);
+    }
+    else if (action == "add_book" && argc == 5) {
+        lib.add_book(argv[2], argv[3], argv[4]);
+    } 
+    else if (action == "view_books") {
+        lib.view_books();
+    } 
+    else if (action == "add_student" && argc == 5) {
+        lib.add_student(argv[2], argv[3], argv[4]);
+    } 
+    else if (action == "view_students") {
+        lib.view_students();
+    } 
+    else if (action == "issue_book" && argc == 4) {
+        lib.issue_book(argv[2], argv[3]);
+    } 
+    else if (action == "return_book" && argc == 3) {
+        lib.return_book(argv[2]);
+    } 
+    else if (action == "reports") {
+        lib.show_reports();
+    }
+
     return 0;
+}
 }
