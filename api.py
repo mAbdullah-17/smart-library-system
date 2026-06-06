@@ -120,7 +120,7 @@ def search_open_library(title):
 def get_ai_summary(book_title):
     try:
         import streamlit as st
-        # Save your Groq key as GROQ_API_KEY in your Streamlit Secrets panel
+        # Extracts your Groq key securely from the environment secrets setup
         api_key = st.secrets["GROQ_API_KEY"]
     except Exception:
         return "ERROR: Secure Groq API Key token not found in Cloud Secrets."
@@ -131,7 +131,8 @@ def get_ai_summary(book_title):
             "Content-Type": "application/json"
         }
         data = {
-            "model": "llama3-8b-8192",
+            # 🟢 FIXED: Changed outdated model ID string to active production version
+            "model": "llama-3.1-8b-instant",
             "messages": [{"role": "user", "content": f"Provide a single 1-line summary for the book: {book_title}"}]
         }
         
