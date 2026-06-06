@@ -288,6 +288,9 @@ student_file << student_list[i].id << "\n"
 // ==========================================
 // 5. STABLE COMMAND-LINE BRIDGE INTERFACE
 // ==========================================
+// ==========================================
+// 5. STABLE COMMAND-LINE BRIDGE INTERFACE
+// ==========================================
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         cout << "ERROR: No action specified." << endl;
@@ -323,5 +326,4 @@ int main(int argc, char* argv[]) {
     }
 
     return 0;
-}
 }
