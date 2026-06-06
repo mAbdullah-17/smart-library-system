@@ -89,26 +89,35 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- ACTION EXECUTIVE LOGIC ROUTERS ---
+    # --- ACTION EXECUTIVE LOGIC ROUTERS (🟢 Fixed Indentation Here!) ---
     
-    # PAGE 1: MAIN REVENUE METRICS DASHBOARD
+    # PAGE 1: MAIN METRICS DASHBOARD
     if page == "Dashboard":
         st.title("Dashboard")
         st.markdown("Welcome back, Admin!")
         
+        # Pulling active real-time data from your C++ core database layers
         c_books = api.view_books()
         c_studs = api.view_students()
+        
+        # Calculate total count dynamically
+        total_books_count = len(c_books)
+        total_students_count = len(c_studs)
+        
+        # Count how many books have a status of "Issued" in your system
+        issued_books_count = sum(1 for book in c_books if book.get("status") == "Issued")
+        available_books_count = total_books_count - issued_books_count
         
         # 4-Column Metric Counter Layout Configuration
         m1, m2, m3, m4 = st.columns(4)
         with m1:
-            st.metric(label="Total Books", value=len(c_books), delta="All books in library")
+            st.metric(label="Total Books", value=total_books_count, delta="All books in library")
         with m2:
-            st.metric(label="Total Students", value=len(c_studs), delta="Registered profiles")
+            st.metric(label="Total Students", value=total_students_count, delta="Registered profiles")
         with m3:
-            st.metric(label="Issued Books", value="18", delta="Currently outstanding")
+            st.metric(label="Issued Books", value=issued_books_count, delta="Currently outstanding")
         with m4:
-            st.metric(label="Available Books", value="102", delta="On shelves")
+            st.metric(label="Available Books", value=available_books_count, delta="On shelves")
             
         st.divider()
         st.subheader("Recent Transactions")
@@ -146,7 +155,6 @@ else:
         st.title("View Books")
         books_data = api.view_books()
         if books_data:
-            # Interactive tabular matrix rendering
             st.dataframe(books_data, use_container_width=True, hide_index=True)
             st.metric(label="Total Books", value=len(books_data))
         else:
@@ -185,7 +193,7 @@ else:
             bid = st.text_input("Book ID")
             if st.form_submit_button("Issue Book", use_container_width=True):
                 if sid and bid:
-                    st.success("Book issued successfully!")
+                    st.info(api.issue_book(sid, bid))
                 else:
                     st.error("Please enter both Student ID and Book ID.")
 
@@ -196,7 +204,7 @@ else:
             rbid = st.text_input("Book ID")
             if st.form_submit_button("Return Book", use_container_width=True):
                 if rbid:
-                    st.success("Book returned successfully!")
+                    st.info(api.return_book(rbid))
                 else:
                     st.error("Please enter a Book ID.")
 
