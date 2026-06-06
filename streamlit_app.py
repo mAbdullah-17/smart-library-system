@@ -47,7 +47,7 @@ if "logged_in" not in st.session_state:
 
 # --- DEPLOYMENT SECURITY ACCESS PORTAL ---
 if not st.session_state.logged_in:
-    st.title("🔐 Secure Administration Entry Node")
+    st.title("Admin Login Page")
     st.markdown("### Authentication verified dynamically via isolated C++ runtime layers.")
     
     col_l, col_r = st.columns([1, 1])
