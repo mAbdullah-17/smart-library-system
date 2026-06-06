@@ -95,7 +95,17 @@ else:
     elif page == "Open Library Engine Sync":
         query = st.text_input("Query Global Web Repository Matrix")
         if query:
-            st.write(api.search_open_library(query))
+            with st.spinner("Synchronizing with Open Library Database Over HTTPS..."):
+                web_results = api.search_open_library(query)
+                
+                # Check if we got actual data or an error back
+                if web_results and "Error" not in web_results[0]:
+                    st.success("Global synchronization complete! Historical metadata mapped:")
+                    st.table(web_results) # Displays as a beautiful table grid!
+                elif web_results and "Error" in web_results[0]:
+                    st.error(web_results[0]["Error"])
+                else:
+                    st.warning("No matching global volume records discovered in this sector.")
 
     elif page == "AI Context Advisory":
         key = st.text_input("OpenAI Secure Bearer Key Token Input String", type="password")
