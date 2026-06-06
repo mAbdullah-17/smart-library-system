@@ -111,9 +111,10 @@ public:
 
         ofstream student_file("students.txt");
         for (int i = 0; i < total_students; i++) {
-            student_file << student_list[i].id << "\n"
-                         << student_list[i].name << "\n"
-                         << student_file << student_list[i].department << "\n";
+            //  CORRECTED LINE
+student_file << student_list[i].id << "\n"
+             << student_list[i].name << "\n"
+             << student_list[i].department << "\n";
         }
         student_file.close();
     }
