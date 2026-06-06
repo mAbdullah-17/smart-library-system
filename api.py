@@ -77,12 +77,41 @@ def get_reports():
 
 # --- API Integration Endpoints ---
 def search_open_library(title):
-    try:
-        url = f"https://openlibrary.org/search.json?title={title}"
-        response = requests.get(url, timeout=10).json()
-        return [{"title": d.get("title", "N/A"), "author": d.get("author_name", ["Unknown"])[0], "year": d.get("first_publish_year", "N/A")} for d in response.get("docs", [])[:5]]
-    except Exception:
+    # If the user input is empty, return a blank list immediately
+    if not title or not title.strip():
         return []
+        
+    try:
+        # Standardized web encoding for URL string paths
+        clean_title = title.strip().replace(" ", "+")
+        url = f"https://openlibrary.org/search.json?title={clean_title}"
+        
+        # 🟢 THE FIX: Explicitly tell the global server who we are so it clears the firewall
+        headers = {
+            "User-Agent": "SmartLibrarySystem/1.0 (mabdullah17; university_project)"
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            docs = data.get("docs", [])
+            
+            # Form clean structured dictionary objects for the UI
+            results = []
+            for d in docs[:5]:  # Capture the top 5 book matches
+                author_list = d.get("author_name", ["Unknown"])
+                results.append({
+                    "Title": d.get("title", "N/A"),
+                    "Author": author_list[0] if author_list else "Unknown",
+                    "First Publish Year": d.get("first_publish_year", "N/A")
+                })
+            return results
+        else:
+            return [{"Error": f"Global server rejected connection. Code: {response.status_code}"}]
+            
+    except Exception as e:
+        return [{"Error": f"Network sync sequence failure: {str(e)}"}]
 
 def get_ai_summary(book_title, api_key=None):
     # Automatically pulls the hidden key from Streamlit Secrets if no key is typed
