@@ -174,7 +174,7 @@ else:
     elif page == "Add Student":
         st.title("Add Student")
         with st.form("add_student_form", clear_on_submit=True):
-            s_id = st.text_input("Student ID")
+            s_id = st.text_input("Student Reg.No.")
             name = st.text_input("Name")
             dept = st.text_input("Department")
             
@@ -199,7 +199,7 @@ else:
     elif page == "Issue Book":
         st.title("Issue Book")
         with st.form("issue_form"):
-            sid = st.text_input("Student ID")
+            sid = st.text_input("Student Reg.No.")
             bid = st.text_input("Book ID")
             if st.form_submit_button("Issue Book", use_container_width=True):
                 if sid and bid:
@@ -226,7 +226,7 @@ else:
 
     # PAGE 9: GLOBAL HTTPS OPEN LIBRARY SYNC CHANNELS
     elif page == "Online Search":
-        st.title("Online Search (Open Library)")
+        st.title("Online Search")
         query = st.text_input("Search Book")
         if st.button("Search", use_container_width=True):
             if query:
@@ -242,7 +242,7 @@ else:
 
     # PAGE 10: CONTEXT SYNTHESIS PIPELINE CHANNELS (GROQ LLAMA FREE API TIER)
     elif page == "AI Book Advisor":
-        st.title("AI Book Advisor (Groq)")
+        st.title("AI Book Advisor")
         target_b = st.text_input("Enter Book Title")
         if st.button("Get AI Recommendation", use_container_width=True):
             if target_b:
