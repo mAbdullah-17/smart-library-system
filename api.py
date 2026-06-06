@@ -16,8 +16,10 @@ def call_cpp_engine(args):
 
 # --- Clean Mapping Endpoints ---
 def verify_login(user, password):
-    clean_user = user.strip().replace(" ", "")
-    clean_pass = password.strip().replace(" ", "")
+    clean_user = user.strip()
+    clean_pass = password.strip()
+    
+    # Send the strings directly into the C++ executable
     res = call_cpp_engine(["auth", clean_user, clean_pass])
     return "SUCCESS" in res
 
