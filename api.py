@@ -118,32 +118,28 @@ def search_open_library(title):
 
 # --- 6. SECURE AI ADVOCACY SYNTHESIS PIPELINE (OPENAI CLOUD API) ---
 def get_ai_summary(book_title):
-    # Dynamically injects token value from encrypted cloud storage container
     try:
         import streamlit as st
-        api_key = st.secrets["OPENAI_API_KEY"]
+        # Save your Groq key as GROQ_API_KEY in your Streamlit Secrets panel
+        api_key = st.secrets["GROQ_API_KEY"]
     except Exception:
-        return "ERROR: Secure API Key token not discovered in Cloud Secrets Configuration."
-
-    if not api_key or api_key == "your-actual-sk-...-key-here":
-        return "ERROR: Secret Key token allocation is currently unassigned or default."
+        return "ERROR: Secure Groq API Key token not found in Cloud Secrets."
 
     try:
         headers = {
-            "Authorization": f"Bearer {api_key}", 
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
         data = {
-            "model": "gpt-4o-mini", 
+            "model": "llama3-8b-8192",
             "messages": [{"role": "user", "content": f"Provide a single 1-line summary for the book: {book_title}"}]
         }
         
-        response = requests.post("https://api.openai.com/v1/chat/completions", json=data, headers=headers, timeout=12)
+        response = requests.post("https://api.groq.com/openai/v1/chat/completions", json=data, headers=headers, timeout=12)
         
         if response.status_code == 200:
             return response.json()['choices'][0]['message']['content'].strip()
         else:
-            return f"ERROR: Cloud AI Engine rejected payload execution request. Code: {response.status_code}"
+            return f"ERROR: Groq Engine rejected request. Code: {response.status_code}"
     except Exception as e:
-        return f"ERROR: Context synthesis network engine crash: {str(e)}"
-      
+        return f"ERROR: Synthesis Pipeline crashed: {str(e)}"
