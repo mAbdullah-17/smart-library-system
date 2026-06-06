@@ -48,20 +48,20 @@ if "logged_in" not in st.session_state:
 # --- DEPLOYMENT SECURITY ACCESS PORTAL ---
 if not st.session_state.logged_in:
     st.title("Admin Login Page")
-    st.markdown("### Authentication verified dynamically via isolated C++ runtime layers.")
+    st.markdown("### Authentication verified via C++ in Backend.")
     
     col_l, col_r = st.columns([1, 1])
     with col_l:
         user = st.text_input("Admin ID")
         password = st.text_input("Password", type="password")
         
-        if st.button("Transmit to Core Validation Engine", use_container_width=True):
+        if st.button("Login", use_container_width=True):
             if api.verify_login(user, password):
                 st.session_state.logged_in = True
-                st.success("Access authorized.")
+                st.success("Welcome Admin!")
                 st.rerun()
             else:
-                st.error("Access validation handshake failure in C++ execution scope.")
+                st.error("c++ is not working properly")
 
 else:
     # --- ENTERPRISE SIDEBAR NAVIGATION DESK ---
