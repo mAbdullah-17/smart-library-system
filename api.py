@@ -1,6 +1,7 @@
 import subprocess
 import requests
 import os
+import json
 
 CPP_SOURCE = "library_system.cpp"
 CPP_EXECUTABLE = "./library_system"
@@ -51,10 +52,18 @@ def view_books():
     raw_out = call_cpp_engine(["view_books"])
     if not raw_out or "No books" in raw_out or raw_out.startswith("ERROR"): 
         return []
+    
     books = []
     for line in raw_out.split("\n"):
-        if "|" in line:
-            parts = line.split("|")
+        clean_line = line.strip()
+        if not clean_line:  # Skip raw trailing newlines cleanly
+            continue
+            
+        if "|" in clean_line:
+            parts = clean_line.split("|")
+            # 🟢 DEFENSIVE GUARDRAIL: Verify the line has all 4 expected fields
+            if len(parts) < 4:
+                continue
             books.append({"id": parts[0], "title": parts[1], "author": parts[2], "status": parts[3]})
     return books
 
@@ -66,10 +75,18 @@ def view_students():
     raw_out = call_cpp_engine(["view_students"])
     if not raw_out or "No students" in raw_out or raw_out.startswith("ERROR"): 
         return []
+    
     students = []
     for line in raw_out.split("\n"):
-        if "|" in line:
-            parts = line.split("|")
+        clean_line = line.strip()
+        if not clean_line:  # Skip blank lines safely
+            continue
+            
+        if "|" in clean_line:
+            parts = clean_line.split("|")
+            # 🟢 DEFENSIVE GUARDRAIL: Verify the student line has all 3 fields
+            if len(parts) < 3:
+                continue
             students.append({"id": parts[0], "name": parts[1], "dept": parts[2]})
     return students
 
@@ -82,6 +99,23 @@ def return_book(book_id):
 
 def get_reports():
     return call_cpp_engine(["reports"])
+
+# --- 4.5 NEW CRITICAL EXTENSION MAPPINGS (EDIT & DELETE FUNCTIONS) ---
+def delete_book(book_id):
+    """Signals C++ backend to drop a book record matching the target book_id."""
+    return call_cpp_engine(["delete_book", book_id.strip()])
+
+def edit_book(book_id, new_title, new_author):
+    """Passes modified metadata values down to overwrite an existing book record."""
+    return call_cpp_engine(["edit_book", book_id.strip(), new_title.strip(), new_author.strip()])
+
+def delete_student(student_id):
+    """Signals C++ backend to delete a student record matching the target student_id."""
+    return call_cpp_engine(["delete_student", student_id.strip()])
+
+def edit_student(student_id, new_name, new_dept):
+    """Passes modified profile fields down to overwrite an existing student record."""
+    return call_cpp_engine(["edit_student", student_id.strip(), new_name.strip(), new_dept.strip()])
 
 # --- 5. GLOBAL OPEN LIBRARY REPOSITORY SYNC (HTTPS API) ---
 def search_open_library(title):
@@ -116,7 +150,7 @@ def search_open_library(title):
     except Exception as e:
         return [{"Error": f"Network sync matrix failure: {str(e)}"}]
 
-# --- 6. SECURE AI ADVOCACY SYNTHESIS PIPELINE (OPENAI CLOUD API) ---
+# --- 6. SECURE AI ADVOCACY SYNTHESIS PIPELINE (GROQ CLOUD API) ---
 def get_ai_summary(book_title):
     try:
         import streamlit as st
@@ -131,7 +165,6 @@ def get_ai_summary(book_title):
             "Content-Type": "application/json"
         }
         data = {
-            # 🟢 FIXED: Changed outdated model ID string to active production version
             "model": "llama-3.1-8b-instant",
             "messages": [{"role": "user", "content": f"Provide a single 1-line summary for the book: {book_title}"}]
         }
