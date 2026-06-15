@@ -1,319 +1,287 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream> // Used for simple space-splitting
 
 using namespace std;
 
 const int MAX = 50;
 
-// Helper function to convert text to lowercase for case-insensitive matching
-string to_lowercase(string text) {
-    for (int i = 0; i < text.length(); i++) {
-        text[i] = tolower(text[i]);
-    }
-    return text;
-}
-
 // ==========================================
-// 1. BOOK CLASS
+// PILLAR 1: ENCAPSULATION 
+// We bundle properties inside classes.
 // ==========================================
 class Book {
 public:
     string id;
     string title;
     string author;
-    int is_issued; 
+    int issued; // 0 = Available, 1 = Issued
 
     Book() {
         id = "";
         title = "";
         author = "";
-        is_issued = 0;
+        issued = 0;
     }
 };
 
 // ==========================================
-// 2. PERSON BASE CLASS (For Inheritance)
+// PILLAR 2: INHERITANCE
+// 'Student' automatically gets 'id' and 'name' from 'Person'
 // ==========================================
 class Person {
 public:
     string id;
     string name;
 
+    // PILLAR 3: POLYMORPHISM
+    // 'virtual' allows sub-classes to override this message later
     virtual void show_type() {
-        cout << "Person Type: General" << endl;
+        cout << "Type: General Person" << endl;
     }
 };
 
-// ==========================================
-// 3. STUDENT CLASS (Inherits Person)
-// ==========================================
 class Student : public Person {
 public:
-    string department;
+    string dept;
 
-    void show_type() {
-        cout << "Person Type: Student" << endl;
+    // Overriding the base function to show custom student type
+    void show_type() override {
+        cout << "Type: Registered Student" << endl;
     }
 };
 
 // ==========================================
-// 4. MAIN LIBRARY SYSTEM CLASS
+// PILLAR 4: ABSTRACTION
+// The main system hides complex file management loops inside
+// clean, easy-to-use function names.
 // ==========================================
 class LibrarySystem {
 private:
-    Book book_list[MAX];
-    Student student_list[MAX];
-    int total_books;
-    int total_students;
+    Book books[MAX];
+    Student students[MAX];
+    int book_count;
+    int student_count;
 
 public:
     LibrarySystem() {
-        total_books = 0;
-        total_students = 0;
+        book_count = 0;
+        student_count = 0;
         load_files();
     }
 
+    // Abstracted function: Hidden details of reading data
     void load_files() {
-        ifstream book_file("books.txt");
-        if (book_file) {
-            while (book_file >> book_list[total_books].id) {
-                book_file.ignore();
-                getline(book_file, book_list[total_books].title);
-                getline(book_file, book_list[total_books].author);
-                book_file >> book_list[total_books].is_issued;
-                total_books++;
+        ifstream b_file("./books.txt");
+        if (b_file) {
+            string line;
+            while (getline(b_file, line) && book_count < MAX) {
+                if (line.empty()) continue;
+                stringstream ss(line);
+                ss >> books[book_count].id >> books[book_count].title >> books[book_count].author >> books[book_count].issued;
+                book_count++;
             }
-            book_file.close();
+            b_file.close();
         }
 
-        ifstream student_file("students.txt");
-        if (student_file) {
-            while (student_file >> student_list[total_students].id) {
-                student_file.ignore();
-                getline(student_file, student_list[total_students].name);
-                getline(student_file, student_list[total_students].department);
-                total_students++;
+        ifstream s_file("./students.txt");
+        if (s_file) {
+            string line;
+            while (getline(s_file, line) && student_count < MAX) {
+                if (line.empty()) continue;
+                stringstream ss(line);
+                ss >> students[student_count].id >> students[student_count].name >> students[student_count].dept;
+                student_count++;
             }
-            student_file.close();
+            s_file.close();
         }
     }
 
+    // Abstracted function: Hidden details of saving data
     void save_files() {
-        ofstream book_file("books.txt");
-        for (int i = 0; i < total_books; i++) {
-            book_file << book_list[i].id << "\n"
-                      << book_list[i].title << "\n"
-                      << book_list[i].author << "\n"
-                      << book_list[i].is_issued << "\n";
+        ofstream b_file("./books.txt");
+        for (int i = 0; i < book_count; i++) {
+            b_file << books[i].id << " " << books[i].title << " " << books[i].author << " " << books[i].issued << "\n";
         }
-        book_file.close();
+        b_file.close();
 
-        ofstream student_file("students.txt");
-        for (int i = 0; i < total_students; i++) {
-            //  CORRECTED LINE
-student_file << student_list[i].id << "\n"
-             << student_list[i].name << "\n"
-             << student_list[i].department << "\n";
+        ofstream s_file("./students.txt");
+        for (int i = 0; i < student_count; i++) {
+            s_file << students[i].id << " " << students[i].name << " " << students[i].dept << "\n";
         }
-        student_file.close();
+        s_file.close();
     }
 
-    void authenticate_user(string username, string password) {
-    // Trim potential invisible server characters from the web inputs
-    if (!username.empty() && (username[username.length()-1] == '\r' || username[username.length()-1] == '\n')) {
-        username.erase(username.length() - 1);
-    }
-    if (!password.empty() && (password[password.length()-1] == '\r' || password[password.length()-1] == '\n')) {
-        password.erase(password.length() - 1);
+    void check_login(string user, string pass) {
+        if (user == "Abdullah" && pass == "12345678") {
+            cout << "SUCCESS: Authenticated" << endl;
+        } else {
+            cout << "ERROR: Invalid credentials" << endl;
+        }
     }
 
-    // Evaluate the cleaned strings using your exact custom credentials
-    if (username == "Abdullah" && password == "12345678") {
-        cout << "SUCCESS: Authenticated" << endl;
-    } else {
-        cout << "ERROR: Invalid username or password" << endl;
-    }
-}
-    void add_book(string b_id, string b_title, string b_author) {
-        if (total_books >= MAX) {
-            cout << "ERROR: No space left for books!" << endl;
+    void add_book(string id, string title, string author) {
+        if (book_count >= MAX) {
+            cout << "ERROR: Full" << endl;
             return;
         }
-        for (int i = 0; i < total_books; i++) {
-            if (to_lowercase(book_list[i].id) == to_lowercase(b_id)) {
-                cout << "ERROR: Book ID already exists!" << endl;
+        for (int i = 0; i < book_count; i++) {
+            if (books[i].id == id) {
+                cout << "ERROR: ID exists" << endl;
                 return;
             }
         }
 
-        book_list[total_books].id = b_id;
-        book_list[total_books].title = b_title;
-        book_list[total_books].author = b_author;
-        book_list[total_books].is_issued = 0;
-        total_books++;
+        books[book_count].id = id;
+        books[book_count].title = title;
+        books[book_count].author = author;
+        books[book_count].issued = 0;
+        book_count++;
 
         save_files();
-        cout << "SUCCESS: Book added successfully!" << endl;
+        cout << "SUCCESS: Book added" << endl;
     }
 
-    void view_books() {
-        if (total_books == 0) {
+    void show_books() {
+        if (book_count == 0) {
             cout << "No books found." << endl;
             return;
         }
-        for (int i = 0; i < total_books; i++) {
-            cout << book_list[i].id << "|" 
-                 << book_list[i].title << "|" 
-                 << book_list[i].author << "|";
-            if (book_list[i].is_issued == 1) {
-                cout << "Issued" << endl;
-            } else {
-                cout << "Available" << endl;
-            }
+        for (int i = 0; i < book_count; i++) {
+            cout << books[i].id << "|" << books[i].title << "|" << books[i].author << "|";
+            if (books[i].issued == 1) cout << "Issued" << endl;
+            else cout << "Available" << endl;
         }
     }
 
-    void add_student(string s_id, string s_name, string s_dept) {
-        if (total_students >= MAX) {
-            cout << "ERROR: No space left for students!" << endl;
+    void add_student(string id, string name, string dept) {
+        if (student_count >= MAX) {
+            cout << "ERROR: Full" << endl;
             return;
         }
-        for (int i = 0; i < total_students; i++) {
-            if (to_lowercase(student_list[i].id) == to_lowercase(s_id)) {
-                cout << "ERROR: Student ID already exists!" << endl;
+        for (int i = 0; i < student_count; i++) {
+            if (students[i].id == id) {
+                cout << "ERROR: ID exists" << endl;
                 return;
             }
         }
 
-        student_list[total_students].id = s_id;
-        student_list[total_students].name = s_name;
-        student_list[total_students].department = s_dept;
-        total_students++;
+        students[student_count].id = id;
+        students[student_count].name = name;
+        students[student_count].dept = dept;
+        student_count++;
 
         save_files();
-        cout << "SUCCESS: Student registered successfully!" << endl;
+        cout << "SUCCESS: Student registered" << endl;
     }
 
-    void view_students() {
-        if (total_students == 0) {
+    void show_students() {
+        if (student_count == 0) {
             cout << "No students found." << endl;
             return;
         }
-        for (int i = 0; i < total_students; i++) {
-            cout << student_list[i].id << "|" 
-                 << student_list[i].name << "|" 
-                 << student_list[i].department << endl;
+        for (int i = 0; i < student_count; i++) {
+            cout << students[i].id << "|" << students[i].name << "|" << students[i].dept << endl;
         }
     }
 
     void issue_book(string s_id, string b_id) {
-        int book_index = -1;
-        int student_index = -1;
+        int b_idx = -1;
+        int s_idx = -1;
 
-        for (int i = 0; i < total_books; i++) {
-            if (to_lowercase(book_list[i].id) == to_lowercase(b_id)) book_index = i;
+        for (int i = 0; i < book_count; i++) {
+            if (books[i].id == b_id) b_idx = i;
         }
-        for (int i = 0; i < total_students; i++) {
-            if (to_lowercase(student_list[i].id) == to_lowercase(s_id)) student_index = i;
+        for (int i = 0; i < student_count; i++) {
+            if (students[i].id == s_id) s_idx = i;
         }
 
-        if (book_index == -1) {
-            cout << "ERROR: Book not found!" << endl;
+        if (b_idx == -1 || s_idx == -1) {
+            cout << "ERROR: Not found" << endl;
             return;
         }
-        if (student_index == -1) {
-            cout << "ERROR: Student not registered!" << endl;
-            return;
-        }
-        if (book_list[book_index].is_issued == 1) {
-            cout << "ERROR: Book is already with someone else!" << endl;
+        if (books[b_idx].issued == 1) {
+            cout << "ERROR: Already issued" << endl;
             return;
         }
 
-        book_list[book_index].is_issued = 1;
+        books[b_idx].issued = 1;
         save_files();
 
-        ofstream history("transactions.txt", ios::app);
-        history << "ISSUED: '" << book_list[book_index].title << "' lent to " << student_list[student_index].name << "\n";
-        history.close();
-
-        cout << "SUCCESS: Book issued to " << student_list[student_index].name << "!" << endl;
+        ofstream log("./transactions.txt", ios::app);
+        if (log) {
+            log << "ISSUED: " << books[b_idx].title << " to " << students[s_idx].name << "\n";
+            log.close();
+        }
+        cout << "SUCCESS: Book issued" << endl;
     }
 
     void return_book(string b_id) {
-        int book_index = -1;
-        for (int i = 0; i < total_books; i++) {
-            if (to_lowercase(book_list[i].id) == to_lowercase(b_id)) book_index = i;
+        int b_idx = -1;
+        for (int i = 0; i < book_count; i++) {
+            if (books[i].id == b_id) b_idx = i;
         }
 
-        if (book_index == -1) {
-            cout << "ERROR: Book not found!" << endl;
+        if (b_idx == -1) {
+            cout << "ERROR: Not found" << endl;
             return;
         }
-        if (book_list[book_index].is_issued == 0) {
-            cout << "ERROR: This book was never issued!" << endl;
+        if (books[b_idx].issued == 0) {
+            cout << "ERROR: Not issued" << endl;
             return;
         }
 
-        book_list[book_index].is_issued = 0;
+        books[b_idx].issued = 0;
         save_files();
 
-        ofstream history("transactions.txt", ios::app);
-        history << "RETURNED: Book ID [" << b_id << "] brought back to physical inventory.\n";
-        history.close();
-
-        cout << "SUCCESS: Book returned to shelves!" << endl;
+        ofstream log("./transactions.txt", ios::app);
+        if (log) {
+            log << "RETURNED: Book " << b_id << " returned.\n";
+            log.close();
+        }
+        cout << "SUCCESS: Book returned" << endl;
     }
 
     void show_reports() {
-        cout << "Total Books in Catalog: " << total_books << endl;
-        cout << "Total Registered Scholars: " << total_students << endl;
+        cout << "Total Books in Catalog: " << book_count << endl;
+        cout << "Total Registered Scholars: " << student_count << endl;
         cout << "---------------------------------------" << endl;
         
-        ifstream history("transactions.txt");
-        if (!history) {
-            cout << "No history logs found." << endl;
-            return;
+        ifstream log("./transactions.txt");
+        if (log) {
+            string line;
+            while (getline(log, line)) {
+                cout << line << endl;
+            }
+            log.close();
         }
-        
-        string record_line;
-        while (getline(history, record_line)) {
-            cout << record_line << endl;
-        }
-        history.close();
     }
 };
 
 // ==========================================
-// 5. STABLE COMMAND-LINE BRIDGE INTERFACE
-// ==========================================
-// ==========================================
-// 5. STABLE COMMAND-LINE BRIDGE INTERFACE
+// 5. COMMAND-LINE ROUTER
 // ==========================================
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        cout << "ERROR: No action specified." << endl;
-        return 1;
-    }
+    if (argc < 2) return 1;
 
     LibrarySystem lib;
     string action = argv[1];
 
     if (action == "auth" && argc == 4) {
-        lib.authenticate_user(argv[2], argv[3]);
+        lib.check_login(argv[2], argv[3]);
     }
     else if (action == "add_book" && argc == 5) {
         lib.add_book(argv[2], argv[3], argv[4]);
     } 
     else if (action == "view_books") {
-        lib.view_books();
+        lib.show_books();
     } 
     else if (action == "add_student" && argc == 5) {
         lib.add_student(argv[2], argv[3], argv[4]);
     } 
     else if (action == "view_students") {
-        lib.view_students();
+        lib.show_students();
     } 
     else if (action == "issue_book" && argc == 4) {
         lib.issue_book(argv[2], argv[3]);
