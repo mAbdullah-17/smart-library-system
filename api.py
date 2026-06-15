@@ -97,12 +97,14 @@ def add_book(book_id, title, author):
 
 def view_books():
     raw_out = call_cpp_engine(["view_books"])
-    if not raw_out or "No books" in raw_out or raw_out.startswith("ERROR"): 
+    # If the output is empty or says "No books", immediately return an empty list
+    if not raw_out or "No books" in raw_out or raw_out.strip() == "": 
         return []
         
     books_list = []
     for line in raw_out.split("\n"):
         clean_line = line.strip()
+        # Strictly ignore completely empty strings or strings without delimiters
         if not clean_line or "|" not in clean_line:
             continue
         parts = clean_line.split("|")
@@ -128,12 +130,14 @@ def add_student(student_id, name, department):
 
 def view_students():
     raw_out = call_cpp_engine(["view_students"])
-    if not raw_out or "No students" in raw_out or raw_out.startswith("ERROR"): 
+    # If the output is empty or says "No students", immediately return an empty list
+    if not raw_out or "No students" in raw_out or raw_out.strip() == "": 
         return []
         
     students_list = []
     for line in raw_out.split("\n"):
         clean_line = line.strip()
+        # Strictly ignore completely empty strings or strings without delimiters
         if not clean_line or "|" not in clean_line:
             continue
         parts = clean_line.split("|")
@@ -162,7 +166,6 @@ def get_reports():
     return call_cpp_engine(["reports"])
 
 # --- 5. SYSTEM DATA CLEANUP / EXTENSIONS ---
-# These sync with standard operations if you choose to activate them in the UI later
 def delete_book(book_id):
     res = call_cpp_engine(["delete_book", book_id.strip()])
     push_to_github("books.txt")
@@ -198,7 +201,7 @@ def search_open_library(title):
     except Exception:
         return []
 
-# --- 7. SECURE AI ADVOCACY COMPONENT (GROQ API) ---
+# --- 7. SECURE Groq API LINK ---
 def get_ai_summary(book_title):
     try:
         import streamlit as st
